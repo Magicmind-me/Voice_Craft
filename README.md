@@ -8,5 +8,5 @@ Checkout [`inference_speech_editing.ipynb`](./inference_speech_editing.ipynb) an
 ## Gradio
 ### Run in colab
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1IOjpglQyMTO2C3Y94LD9FY0Ocn-RJRg6?usp=sharing)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Xa6b3w2UlmNyEK9DzU563V2GHmKdsnsT?usp=sharing)
 
