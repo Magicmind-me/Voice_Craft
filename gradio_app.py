@@ -321,11 +321,11 @@ def run(seed, left_margin, right_margin, codec_audio_sr, codec_sr, top_k, top_p,
         return output_audio, inference_transcript, sentence_audio, previous_audio_tensors
 
 
-def update_input_audio(audio_path):
-    if audio_path is None:
+def update_input_audio(temp_path):
+    if temp_path is None:
         return 0, 0, 0
 
-    info = torchaudio.info(audio_path)
+    info = torchaudio.info(temp_path)
     max_time = round(info.num_frames / info.sample_rate, 2)
     return [
         gr.Slider(maximum=max_time, value=max_time),
@@ -374,6 +374,19 @@ def update_bound_words(from_selected_word, to_selected_word, edit_word_mode):
         update_bound_word(True, from_selected_word, edit_word_mode),
         update_bound_word(False, to_selected_word, edit_word_mode),
     ]
+def save_audio(input_audio):
+    # Save the audio to a temporary path
+    temporary_path = "/tmp/temp_audio.wav"  # Example temporary path, you can change it as needed
+    temp_path= input_audio.save(temporary_path)
+    info = torchaudio.info(temp_path)
+    max_time = round(info.num_frames / info.sample_rate, 2)
+    return [
+        gr.Slider(maximum=max_time, value=max_time),
+        gr.Slider(maximum=max_time, value=0),
+        gr.Slider(maximum=max_time, value=max_time),
+    ]
+    # return temp_path
+    # return "Audio saved successfully at: " + temporary_path
 
 
 smart_transcript_info = """
@@ -447,7 +460,9 @@ def get_app():
 
         with gr.Row():
             with gr.Column(scale=2):
-                input_audio = gr.Audio(value=f"{DEMO_PATH}/5895_34622_000026_000002.wav", label="Input Audio", type="filepath", interactive=True)
+                input_audio=gr.Audio(source="microphone", type="filepath", label="Input Audio",interactive=True)
+                # input_audio = gr.Audio(value=f"{DEMO_PATH}/5895_34622_000026_000002.wav", label="Input Audio", type="filepath", interactive=True)
+                # input_audio=gr.Audio(source="microphone", type="filepath", label="Record Audio")
                 with gr.Group():
                     original_transcript = gr.Textbox(label="Original transcript", lines=5, value=demo_original_transcript,
                                                     info="Use whisperx model to get the transcript. Fix and align it if necessary.")
@@ -537,10 +552,10 @@ def get_app():
         load_models_btn.click(fn=load_models,
                             inputs=[whisper_backend_choice, whisper_model_choice, align_model_choice, voicecraft_model_choice],
                             outputs=[models_selector])
-
-        input_audio.upload(fn=update_input_audio,
-                        inputs=[input_audio],
-                        outputs=[prompt_end_time, edit_start_time, edit_end_time])
+        input_audio.upload(fn=save_audio,inputs=[input_audio],outputs=[prompt_end_time, edit_start_time, edit_end_time])
+        # input_audio.upload(fn=update_input_audio,
+        #                 inputs=[input_audio],
+        #                 outputs=[prompt_end_time, edit_start_time, edit_end_time])
         transcribe_btn.click(fn=transcribe,
                             inputs=[seed, input_audio],
                             outputs=[original_transcript, transcript_with_start_time, transcript_with_end_time,
